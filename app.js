@@ -1,34 +1,54 @@
-require('dotenv').config();
 const express = require('express');
-const Groq = require('groq-sdk');
+const sql = require('./db');
+
 const app = express();
-const PORT = 3000;
 
-const client = new Groq({
-    apiKey: process.env['GROQ_API_KEY'], // This is the default and can be omitted
-});
+app.use(express.json()); // convert req body into json
 
-app.use(express.json());
+const getTasks = async () => {
+    const tasks = await sql`select * from tasks`
+    return tasks;
+}
 
-app.get('/hello', (req, res, next) => {
+app.get('/tasks', async (req, res, next) => {
+    const tasks = await getTasks();
     res.status(200).json({
-        msg: 'Hello World'
+        tasks: tasks
     });
 });
 
+app.post('/task', async (req, res, next) => {
+    try {
+        if (!req.body.newTask) {
+            res.status(400).json({
+                message: 'Please give task in newTask'
+            });
+            return;
+        }
 
-app.post('/prompt', async (req, res, next) => {
+        // INSERT INTO tasks("gym")
+        await sql`INSERT INTO tasks (name) VALUES (${req.body.newTask})`;
 
-    const chatCompletion = await client.chat.completions.create({
-        messages: [{ role: 'user', content: req.body.prompt }],
-        model: 'llama3-8b-8192',
-    });
+        res.status(200).json({
+            message: 'Task added successfully'
+        });
+    } catch (error) {
+        console.log('error', error)
+        res.status(500).json({
+            message: 'Something went wrong',
+            error: error
+        });
+    }
+});
 
+app.delete('/task/:index', (req, res, next) => {
+    // tasks delete elemt at 2 index
+    tasks.splice(req.params.index, 1);
     res.status(200).json({
-        response: chatCompletion.choices[0].message.content
+        message: 'Task deleted successfully'
     });
 });
 
-app.listen(PORT, () => {
-    console.log('Express server started on http://localhost:3000');
+app.listen(3000, () => {
+    console.log('Server started at http://localhost:3000');
 });

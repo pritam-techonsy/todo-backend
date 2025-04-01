@@ -41,12 +41,32 @@ app.post('/task', async (req, res, next) => {
     }
 });
 
-app.delete('/task/:index', (req, res, next) => {
-    // tasks delete elemt at 2 index
-    tasks.splice(req.params.index, 1);
-    res.status(200).json({
-        message: 'Task deleted successfully'
-    });
+app.delete('/task/:taskId', async (req, res, next) => {
+    try {
+        await sql`DELETE FROM tasks where id = ${req.params.taskId}`
+        res.status(200).json({
+            message: 'Task deleted successfully'
+        });
+    } catch (error) {
+        console.log('error', error);
+        res.status(500).json({
+            error: error
+        });
+    }
+});
+
+app.put('/task/:taskId', async (req, res, next) => {
+    try {
+        await sql`UPDATE tasks SET name=${req.body.newTask} WHERE id=${req.params.taskId}`;
+        res.status(200).json({
+            message: 'Task updated successfully'
+        });
+    } catch (error) {
+        console.log('error', error);
+        res.status(500).json({
+            error: error
+        });
+    }
 });
 
 app.listen(3000, () => {

@@ -5,6 +5,8 @@ const app = express();
 
 app.use(express.json()); // convert req body into json
 
+app.use(express.static('public'));
+
 const getTasks = async () => {
     const tasks = await sql`select * from tasks`
     return tasks;

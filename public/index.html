@@ -1,0 +1,46 @@
+<html>
+  <body>
+    <input type="text" id="input" />
+    <button onclick="add()">add</button>
+    <ul id="task"></ul>
+  </body>
+
+  <script>
+    const taskElem = document.getElementById("task");
+    const input = document.getElementById("input");
+    const getTasks = async (params) => {
+      const response = await fetch("http://localhost:3000/tasks", {
+        method: "GET",
+      });
+      const body = await response.json();
+
+      console.log(body);
+
+      taskElem.innerHTML = '';
+      body.tasks.forEach((task) => {
+        const newLi = document.createElement("li");
+        newLi.innerText = task.name;
+        taskElem.appendChild(newLi);
+      });
+    };
+
+    getTasks();
+
+    const add = async () => {
+      const requestOptions = {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          newTask: input.value,
+        }),
+      };
+
+      const response = await fetch(
+        "http://localhost:3000/task",
+        requestOptions
+      );
+
+      getTasks();
+    };
+  </script>
+</html>

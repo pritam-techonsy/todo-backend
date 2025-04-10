@@ -8,10 +8,10 @@ app.use(express.json()); // convert req body into json
 app.use(express.static('public'));
 
 app.use((req, res, next) => {
-    res.setHeaders({
+    res.setHeaders(new Headers({
         'access-control-allow-origin': '*',
         'access-control-allow-headers': '*'
-    });
+    }));
 
     next();
 });

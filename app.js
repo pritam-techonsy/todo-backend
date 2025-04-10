@@ -7,6 +7,15 @@ app.use(express.json()); // convert req body into json
 
 app.use(express.static('public'));
 
+app.use((req, res, next) => {
+    res.setHeaders({
+        'access-control-allow-origin': '*',
+        'access-control-allow-headers': '*'
+    });
+
+    next();
+});
+
 const getTasks = async () => {
     const tasks = await sql`select * from tasks`
     return tasks;
@@ -14,6 +23,7 @@ const getTasks = async () => {
 
 app.get('/tasks', async (req, res, next) => {
     const tasks = await getTasks();
+
     res.status(200).json({
         tasks: tasks
     });
